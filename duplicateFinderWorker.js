@@ -1,24 +1,30 @@
-var lAddr = {
-};
-log = function (txt) {
+var lAddr = {};
+importScripts('utils.js');
+log = function(txt) {
     //     console.log(txt);
-    postMessage(txt);
+    postMessage({
+        'cmd': 'log',
+        'txt': txt
+    });
 }
-onmessage = function (e) {
-    switch (e.data.cmd) {
-        case 'calculate':
-            calculateDuplicates(e.data.body);
-            break;
-        case 'stop':
-            log('Stopped from inside');
-            close();
-            break
-    }
+onmessage = function(e) {
+    try {
+        switch (e.data.cmd) {
+            case 'close':
+                close();
+                break;
+            case 'stop':
+                break;
+            case 'calculate':
+                main(e.data.body);
+                break;
+            default:
+                // do nothing
+        }
+    } catch (e) {}
 }
-calculateDuplicates = function (root)
-{
-    lAddr = {
-    };
+main = function(root) {
+    lAddr = {};
     log('Started ...');
     uniq = getDuplicateCount(root);
     log('Done!');
@@ -27,35 +33,39 @@ calculateDuplicates = function (root)
     dup = 0;
     result += '<table>';
     for (var i in lAddr) {
-        result += '<tr><td>' + lAddr[i] + '</td><td class="addr"><a href="' + i + '" target="blank">' + i + '</a></td></tr>';
+        result += '<tr><td data-link-id="' +
+            U.hashCode(i) + '">' + lAddr[i] +
+            '</td><td class="addr"><a href="' +
+            i +
+            '" target="blank">' + i + '</a></td></tr>';
         if (lAddr[i] > 1) {
             dup += lAddr[i];
         }
         count++;
     }
     result += '</table>'
-    result += 'Total: ' + count + ' unique bookmarks and ' + dup + ' duplicates<br>';
+    result += 'Total: ' + count + ' unique bookmarks and ' + dup +
+        ' duplicates<br>';
     postMessage({
-        'result': result,
-        'file': JSON.stringify(uniq)
+        'cmd': 'result',
+        'txt': result,
+        'file': JSON.stringify(uniq),
+        'list': lAddr
     });
 }
-getDuplicateCount = function (node)
-{
+getDuplicateCount = function(node) {
     var copy = JSON.parse(JSON.stringify(node));
     if (node != null) {
         if (typeof node.children !== 'undefined') {
-            copy.children = [
-            ];
-            node.children.forEach(function (item, i) {
+            copy.children = [];
+            node.children.forEach(function(item, i) {
                 result = getDuplicateCount(item);
                 if (result !== false) {
                     copy.children[i] = result;
                 }
             })
         }
-        if (typeof node.uri !== 'undefined')
-        {
+        if (typeof node.uri !== 'undefined') {
             if (typeof lAddr[node.uri] == 'undefined') {
                 lAddr[node.uri] = 0;
             }

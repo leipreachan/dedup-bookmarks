@@ -14,14 +14,14 @@
   </head>
 
   <body>
-<button class="run">RUN</button>
+<button class="run start">RUN</button><button class="run stop hidden">STOP</button>
 <br/>
 <div class="result"></div><br>
-<a href="" class="download" download="bookmarks.json"></a><br/>
-<a href="" class="statusChecker"></a>
+<a href="" class="download" download="bookmarks.json"></a><br/><br/>
+<button class="checkStatus start hidden">check HTTP status of bookmarked pages</button><button class="checkStatus stop hidden">STOP</button>
 </body>
-
-<!--<script src="bookmarks.js"></script>-->
-<script src="uniq.js"></script>
+<script src="utils.js"></script>
+<script src="bookmarks.js"></script>
+<!-- <script src="bookmarks_uniq.js"></script> -->
 <script src="main.js"></script>
 </html>
