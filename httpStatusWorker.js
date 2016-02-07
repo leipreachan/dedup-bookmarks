@@ -2,10 +2,8 @@ importScripts('utils.js');
 
 var maxQueueSize = 20;
 var reqQueue = [];
-var oReq;
 
 onmessage = function(e) {
-    console.log(e.data.cmd);
     switch (e.data.cmd) {
         case 'stop':
             reqQueue.forEach(function(item) {
@@ -23,43 +21,41 @@ onmessage = function(e) {
         case 'checkStatus':
             main(e.data.body);
             break;
-        default:
-            // do nothing
     }
 }
 
 getStatus = function(addr) {
-    oReq = new XMLHttpRequest();
-    oReq.timeout = 10000;
     hash = U.hashCode(addr);
-    oReq.ontimeout = function() {
-        sendUpdate(hash, 'darkgrey');
-    }
-    oReq.onreadystatechange = function() {
-        try {
-            if (oReq.readyState === XMLHttpRequest.DONE) {
-                switch (oReq.status) {
-                    case 200:
-                        sendUpdate(hash, 'green');
-                        break;
-                    case 301:
-                        sendUpdate(hash, 'purple');
-                        break;
-                    default:
-                        sendUpdate(hash, 'red');
-                }
-            } else {
-                sendUpdate(hash, 'grey');
+    var xhr = new XMLHttpRequest();
+    xhr.timeout = 10000;
+    xhr.ontimeout = function() {
+            sendUpdate(hash, 'darkgrey');
+        }
+        //cross-domain XHR, duh
+        // add php-grabber with curl
+    xhr.onreadystatechange = function() {
+        console.log(addr + ' readyState ' + this.readyState);
+        if (this.readyState === XMLHttpRequest.DONE) {
+            console.log(addr + ' status ' + this.status);
+            switch (this.status) {
+                case 200:
+                    console.log(addr + ' ' + 200);
+                    sendUpdate(hash, 'green');
+                    break;
+                case 302:
+                    console.log(addr + ' ' + 302);
+                    sendUpdate(hash, 'purple');
+                    break;
             }
-        } catch (e) {
-            sendUpdate(hash, 'brown');
+        } else {
+            sendUpdate(hash, 'grey');
         }
     }
 
     try {
-        reqQueue[reqQueue.length++] = oReq;
-        oReq.open('GET', addr, false);
-        oReq.send();
+        reqQueue[reqQueue.length++] = xhr;
+        xhr.open('GET', addr, false);
+        xhr.send();
     } catch (e) {
         sendUpdate(hash, 'brown');
     }

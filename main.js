@@ -16,7 +16,7 @@ stopWorker = function(worker, btnOn, btnOff, forceStop) {
     });
 }
 errorHandler = function(event) {
-    console.log(event);
+    // console.log(event);
 }
 
 if (window.Worker) {
@@ -75,8 +75,6 @@ if (window.Worker) {
                     list = e.data.list;
                 }
                 break;
-            default:
-                // do nothing
         }
         if (typeof e.data.txt !== 'undefined') {
             result.innerHTML = e.data.txt;
@@ -95,8 +93,6 @@ if (window.Worker) {
                 stopWorker(statusWorker, checkStatus, checkStatusStop,
                     false);
                 break;
-            default:
-                // do nothing
         }
     };
 }
